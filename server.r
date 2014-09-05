@@ -145,7 +145,7 @@ shinyServer(function(input, output) {
     selout <- ""
     
     if(input$info == "uit"){
-      
+      selout <- "HENK"
     }
     if(input$info == "copy"){
      selout <- '
@@ -377,18 +377,21 @@ shinyServer(function(input, output) {
   # # Print formulas with solution if requested
   output$calc_form <- renderPlot({
     # # Grid layout
-    gl <- grid.layout(nrow=4, ncol=1)
+    gl <- grid.layout(nrow=5, ncol=1)
     vp.1 <- viewport(layout.pos.col=1, layout.pos.row=1) 
     vp.2 <- viewport(layout.pos.col=1, layout.pos.row=2) 
     vp.3 <- viewport(layout.pos.col=1, layout.pos.row=3) 
     vp.4 <- viewport(layout.pos.col=1, layout.pos.row=4) 
+    vp.5 <- viewport(layout.pos.col=1, layout.pos.row=5) 
+    
     
     tab_sens <- calcMatr()[1,1]/calcMatr()[3,1]
     tab_spec <- calcMatr()[2,2]/calcMatr()[3,2]
     tab_ppv  <- calcMatr()[1,1]/calcMatr()[1,3]
     tab_npv  <- calcMatr()[2,2]/calcMatr()[2,3]
+    tab_prev <- (calcMatr()[1,1]+calcMatr()[2,1])/sum(calcMatr()[1:2,1:2])
     
-    tab_sensCI <- BDtest(calcMatr()[1:2,1:2],(calcMatr()[1,1]+calcMatr()[2,2])/sum(calcMatr()[1:2,1:2]))
+    tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev)
 #     tab_sensCI <- BDtest(HENK[1:2,1:2],(HENK[1,1]+HENK[2,2])/sum(HENK[1:2,1:2]))
     
     
@@ -397,6 +400,7 @@ shinyServer(function(input, output) {
     
     Sensitiviteit <- "Sensitiviteit"
     Specificiteit <- "Specificiteit"
+    Prevalentie   <- "Prevalentie"
     
     if(language == "eng") Sensitiviteit <- "Sensitivity"
     if(language == "eng") Specificiteit <- "Specificity"
@@ -415,36 +419,47 @@ shinyServer(function(input, output) {
       pushViewport(vp.4)
       grid.text(bquote({plain(NPV) == frac(D,C+D)}),x = 0, just = 0)
       popViewport() 
+      pushViewport(vp.5)
+      grid.text(bquote({plain(.(Prevalentie)) == frac(A+C,A+B+C+D)}),x = 0, just = 0)
+      popViewport() 
     }       
     if(input$calc_uit & !input$calc_ci){
       # # Add solutions 
       pushViewport(vp.1)
-      grid.text(bquote({{plain(.(Sensitiviteit)) == frac(A,A+C)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[3,1]))}} == .(round(tab_sens,2))),x = 0, just = 0)
+      grid.text(bquote({{plain(.(Sensitiviteit)) == frac(A,A+C)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[3,1]))}} == bold(.(paste(round(tab_sens,input$dec))))),x = 0, just = 0)
       popViewport()
       pushViewport(vp.2)
-      grid.text(bquote({{plain(.(Specificiteit)) == frac(D,B+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[3,2]))}} == .(round(tab_spec,2))),x = 0, just = 0)
+      grid.text(bquote({{plain(.(Specificiteit)) == frac(D,B+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[3,2]))}} == bold(.(paste(round(tab_spec,input$dec))))),x = 0, just = 0)
       popViewport()  
       pushViewport(vp.3)
-      grid.text(bquote({{plain(PPV) == frac(A,A+B)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[1,3]))}} == .(round(tab_ppv,2))),x = 0, just = 0)
+      grid.text(bquote({{plain(PPV) == frac(A,A+B)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[1,3]))}} == bold(.(paste(round(tab_ppv,input$dec))))),x = 0, just = 0)
       popViewport()  
       pushViewport(vp.4)
-      grid.text(bquote({{plain(NPV) == frac(D,C+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[2,3]))}} == .(round(tab_npv,2))),x = 0, just = 0)
+      grid.text(bquote({{plain(NPV) == frac(D,C+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[2,3]))}} == bold(.(paste(round(tab_npv,input$dec))))),x = 0, just = 0)
       popViewport()
+      pushViewport(vp.5)
+      grid.text(bquote({{plain(.(Prevalentie)) == frac(A+C,A+B+C+D)}=={frac(.(sum(calcMatr()[1:2,1])),.(sum(calcMatr()[1:2,1:2])))}} == bold(.(paste(round(tab_prev,input$dec))))),x = 0, just = 0)
+      popViewport() 
     }
     if(input$calc_uit & input$calc_ci){
       # # Add solutions 
       pushViewport(vp.1)
-      grid.text(bquote({{plain(.(Sensitiviteit)) == frac(A,A+C)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[3,1]))}} == .(paste(round(tab_sens,2),"  "))  (.(round(tab_sensCI$SESPDAT[1,3],2)) , .(round(tab_sensCI$SESPDAT[1,4],2)))),x = 0, just = 0)
+      grid.text(bquote({{plain(.(Sensitiviteit)) == frac(A,A+C)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[3,1]))}} == bold(.(paste(round(tab_sens,input$dec),"  ")))  (.(round(tab_sensCI$SESPDAT[1,3],input$dec)) , .(round(tab_sensCI$SESPDAT[1,4],input$dec)))),x = 0, just = 0)
       popViewport()
       pushViewport(vp.2)
-      grid.text(bquote({{plain(.(Specificiteit)) == frac(D,B+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[3,2]))}} == .(paste(round(tab_spec,2),"  "))  (.(round(tab_sensCI$SESPDAT[2,3],2)) , .(round(tab_sensCI$SESPDAT[2,4],2)))),x = 0, just = 0)
+      grid.text(bquote({{plain(.(Specificiteit)) == frac(D,B+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[3,2]))}} == bold(.(paste(round(tab_spec,input$dec),"  ")))  (.(round(tab_sensCI$SESPDAT[2,3],input$dec)) , .(round(tab_sensCI$SESPDAT[2,4],input$dec)))),x = 0, just = 0)
       popViewport()  
       pushViewport(vp.3)
-      grid.text(bquote({{plain(PPV) == frac(A,A+B)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[1,3]))}} == .(paste(round(tab_ppv,2),"  ")) (.(round(tab_sensCI$PPVNPVDAT[2,3],2)) , .(round(tab_sensCI$PPVNPVDAT[2,4],2)))),x = 0, just = 0)
+      grid.text(bquote({{plain(PPV) == frac(A,A+B)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[1,3]))}} == bold(.(paste(round(tab_ppv,input$dec),"  "))) (.(round(tab_sensCI$PPVNPVDAT[2,3],input$dec)) , .(round(tab_sensCI$PPVNPVDAT[2,4],input$dec)))),x = 0, just = 0)
       popViewport()  
       pushViewport(vp.4)
-      grid.text(bquote({{plain(NPV) == frac(D,C+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[2,3]))}} == .(paste(round(tab_npv,2),"  ")) (.(round(tab_sensCI$PPVNPVDAT[1,3],2)) , .(round(tab_sensCI$PPVNPVDAT[1,4],2)))),x = 0, just = 0)
-      popViewport()      
+      grid.text(bquote({{plain(NPV) == frac(D,C+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[2,3]))}} == bold(.(paste(round(tab_npv,input$dec),"  "))) (.(round(tab_sensCI$PPVNPVDAT[1,3],input$dec)) , .(round(tab_sensCI$PPVNPVDAT[1,4],input$dec)))),x = 0, just = 0)
+      popViewport()
+      pushViewport(vp.5)
+      zval <- -qnorm((1-input$calc_cib/100)/2)
+#       grid.text(bquote(.(zval)))
+      grid.text(bquote({{plain(.(Prevalentie)) == frac(A+C,A+B+C+D)}=={frac(.(sum(calcMatr()[1:2,1])),.(sum(calcMatr()[1:2,1:2])))}} == bold(.(paste(round(tab_prev,input$dec),"  "))) (.(round(tab_prev-(zval*sqrt(tab_prev*(1-tab_prev)/sum(calcMatr()[1:2,1:2]))),input$dec)) , .(round(tab_prev+(zval*sqrt(tab_prev*(1-tab_prev)/sum(calcMatr()[1:2,1:2]))),input$dec)))),x = 0, just = 0)
+      popViewport() 
     }
   })
   

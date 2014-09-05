@@ -287,6 +287,7 @@ a:focus {
   margin-left: 20px;
 }
 
+
 .container,
 .navbar-static-top .container,
 .navbar-fixed-top .container,
@@ -3100,6 +3101,7 @@ table th[class*="span"],
 .dropdown .dropdown-menu .nav-header {
   padding-right: 20px;
   padding-left: 20px;
+
 }
 
 .typeahead {
@@ -3981,6 +3983,7 @@ input[type="submit"].btn.btn-mini {
   color: #999999;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
+
 }
 
 .nav li + .nav-header {
@@ -4395,6 +4398,7 @@ input[type="submit"].btn.btn-mini {
 
 .navbar-inner:before,
 .navbar-inner:after {
+
   display: table;
   line-height: 0;
   content: "";
@@ -4414,6 +4418,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .navbar .brand {
+  
   display: block;
   float: left;
   padding: 15px 20px 15px;
@@ -4422,6 +4427,7 @@ input[type="submit"].btn.btn-mini {
   font-weight: 200;
   color: #ffffff;
   text-shadow: 0 1px 0 #54b4eb;
+
 }
 
 .navbar .brand:hover,
@@ -4533,6 +4539,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-static-top {
   position: static;
   margin-bottom: 0;
+
 }
 
 .navbar-static-top .navbar-inner {
@@ -4548,11 +4555,13 @@ input[type="submit"].btn.btn-mini {
   left: 0;
   z-index: 1030;
   margin-bottom: 0;
+
 }
 
 .navbar-fixed-top .navbar-inner,
 .navbar-static-top .navbar-inner {
   border-width: 0 0 1px;
+
 }
 
 .navbar-fixed-bottom .navbar-inner {
@@ -4583,6 +4592,7 @@ input[type="submit"].btn.btn-mini {
   -webkit-box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
      -moz-box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
           box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+
 }
 
 .navbar-fixed-bottom {
@@ -4601,6 +4611,7 @@ input[type="submit"].btn.btn-mini {
   display: block;
   float: left;
   margin: 0 10px 0 0;
+
 }
 
 .navbar .nav.pull-right {
@@ -4643,6 +4654,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .navbar .btn-navbar {
+
   display: none;
   float: right;
   padding: 7px 10px;
@@ -5236,6 +5248,7 @@ input[type="submit"].btn.btn-mini {
 .modal-header {
   padding: 9px 15px;
   border-bottom: 1px solid #eee;
+
 }
 
 .modal-header .close {
@@ -6169,7 +6182,7 @@ a.badge:focus {
 }
 
 .navbar .brand {
-  padding: 14px 20px 16px;
+  padding: 14px 60px 16px;
   font-family: 'Telex', sans-serif;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
@@ -6199,6 +6212,8 @@ a.badge:focus {
 .navbar-inverse .navbar-search .search-query {
   color: #555555;
 }
+
+
 
 @media (max-width: 979px) {
   .navbar .nav-collapse .nav li > a {
