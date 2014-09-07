@@ -82,6 +82,10 @@ myurl <- "http://i.imgur.com/UeLHhxX.png"
 worse_png <- readPNG(getURLContent(myurl))
 worse_fig <- rasterGrob(worse_png, interpolate=TRUE)
 
+myurl <- "http://i.imgur.com/Tk7gcxJ.png"
+diffu_png <- readPNG(getURLContent(myurl))
+diffu_fig <- rasterGrob(diffu_png, interpolate=TRUE)
+
 # # Data Frames 
 # Normal
 Normal <- data.frame(Score = seq(from = 0, to = 100, by = 5) + 0.01,
@@ -121,6 +125,14 @@ Worse_rocT <- data.frame(sens = c(0,0,100),
                          spec = c(0,100,100)
 )
 
+# Diffuse
+Diffu <- data.frame(Score = seq(from = 0, to = 100, by = 5) + 0.01,
+                    Sick  = c(1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1))
+Diffu_roc <- roc(response = Diffu$Sick, predictor = Diffu$Score)
+Diffu_rocT <- data.frame(sens=Diffu_roc$sensitivities*100,
+                         spec=(1-Diffu_roc$specificities)*100,
+                         score=Diffu_roc$thresholds)
+
 # # Empty Plot
 plot <- 
   ggplot(Normal, aes(x=Score, y=Sick), geom="blank") +
@@ -148,7 +160,7 @@ shinyServer(function(input, output) {
       selout <- "HENK"
     }
     if(input$info == "copy"){
-     selout <- '
+      selout <- '
       The MIT License (MIT)
       <br> <br>
       Copyright (c) 2014 Huub
@@ -160,20 +172,20 @@ shinyServer(function(input, output) {
       Source code @:
       <br>
       <a href="https://github.com/HHoofs/SensSpec" target="_blank"><img src="http://www.wakanda.org/sites/default/files/blog/blog-github.png" alt="Github Directory" width="200px"></a>'
-  
+      
     }
     paste(selout)
   })
   
   # # Data Frame Select
   selFrame <- reactive({
-    selectFrame <- switch(input$selfr, "nor" = Normal, "priL" = PriorL, "priH" = PriorH, "per" = Perfect, "wor" = Worse)
+    selectFrame <- switch(input$selfr, "nor" = Normal, "priL" = PriorL, "priH" = PriorH, "per" = Perfect, "wor" = Worse, "diff" = Diffu)
     selectFrame
   })
   
   # # ROC frame select
   rocFrame <- reactive({
-    rocselFrame <- switch(input$selfr, "nor" = Normal_rocT, "priL" = PriorL_rocT, "priH" = PriorH_rocT, "per" = Perfect_rocT, "wor" = Worse_rocT)
+    rocselFrame <- switch(input$selfr, "nor" = Normal_rocT, "priL" = PriorL_rocT, "priH" = PriorH_rocT, "per" = Perfect_rocT, "wor" = Worse_rocT, "diff" = Diffu_rocT)
     rocselFrame
   })
   
@@ -211,7 +223,7 @@ shinyServer(function(input, output) {
   # # Top figure
   output$basefig <- renderPlot({
     # # Select figure 
-    selectFigure <- switch(input$selfr, "nor" = normal_fig, "priL" = priorl_fig, "priH" = priorh_fig, "per" = perfect_fig, "wor" = worse_fig)
+    selectFigure <- switch(input$selfr, "nor" = normal_fig, "priL" = priorl_fig, "priH" = priorh_fig, "per" = perfect_fig, "wor" = worse_fig, "diff" = diffu_fig)
     # # Dataframe
     bfig_tab <- selFrame()
     # # LEtters
@@ -391,9 +403,12 @@ shinyServer(function(input, output) {
     tab_npv  <- calcMatr()[2,2]/calcMatr()[2,3]
     tab_prev <- (calcMatr()[1,1]+calcMatr()[2,1])/sum(calcMatr()[1:2,1:2])
     
-    tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev)
-#     tab_sensCI <- BDtest(HENK[1:2,1:2],(HENK[1,1]+HENK[2,2])/sum(HENK[1:2,1:2]))
+    Ntotal <- sum(calcMatr()[1:2,1:2])
     
+
+    
+    
+
     
     # # init layout
     pushViewport(viewport(layout=gl))
@@ -442,6 +457,21 @@ shinyServer(function(input, output) {
       popViewport() 
     }
     if(input$calc_uit & input$calc_ci){
+      tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev,conf.level = input$calc_cib/100)
+      
+      zval <- -qnorm((1-input$calc_cib/100)/2)
+      
+      tab_sensL <- tab_sens-(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+      tab_specL <- tab_spec-(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+      tab_ppvL  <- tab_ppv -(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+      tab_npvL  <- tab_npv -(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+      tab_prevL <- tab_prev-(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
+      
+      tab_sensU <- tab_sens+(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+      tab_specU <- tab_spec+(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+      tab_ppvU  <- tab_ppv +(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+      tab_npvU  <- tab_npv +(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+      tab_prevU <- tab_prev+(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
       # # Add solutions 
       pushViewport(vp.1)
       grid.text(bquote({{plain(.(Sensitiviteit)) == frac(A,A+C)}=={frac(.(calcMatr()[1,1]),.(calcMatr()[3,1]))}} == bold(.(paste(round(tab_sens,input$dec),"  ")))  (.(round(tab_sensCI$SESPDAT[1,3],input$dec)) , .(round(tab_sensCI$SESPDAT[1,4],input$dec)))),x = 0, just = 0)
@@ -456,9 +486,7 @@ shinyServer(function(input, output) {
       grid.text(bquote({{plain(NPV) == frac(D,C+D)}=={frac(.(calcMatr()[2,2]),.(calcMatr()[2,3]))}} == bold(.(paste(round(tab_npv,input$dec),"  "))) (.(round(tab_sensCI$PPVNPVDAT[1,3],input$dec)) , .(round(tab_sensCI$PPVNPVDAT[1,4],input$dec)))),x = 0, just = 0)
       popViewport()
       pushViewport(vp.5)
-      zval <- -qnorm((1-input$calc_cib/100)/2)
-#       grid.text(bquote(.(zval)))
-      grid.text(bquote({{plain(.(Prevalentie)) == frac(A+C,A+B+C+D)}=={frac(.(sum(calcMatr()[1:2,1])),.(sum(calcMatr()[1:2,1:2])))}} == bold(.(paste(round(tab_prev,input$dec),"  "))) (.(round(tab_prev-(zval*sqrt(tab_prev*(1-tab_prev)/sum(calcMatr()[1:2,1:2]))),input$dec)) , .(round(tab_prev+(zval*sqrt(tab_prev*(1-tab_prev)/sum(calcMatr()[1:2,1:2]))),input$dec)))),x = 0, just = 0)
+      grid.text(bquote({{plain(.(Prevalentie)) == frac(A+C,A+B+C+D)}=={frac(.(sum(calcMatr()[1:2,1])),.(sum(calcMatr()[1:2,1:2])))}} == bold(.(paste(round(tab_prev,input$dec),"  "))) (.(round(tab_prevL,input$dec)) , .(round(tab_prevU,input$dec)))),x = 0, just = 0)
       popViewport() 
     }
   })

@@ -9,9 +9,9 @@ shinyUI(
                         sidebarPanel(
                           radioButtons("info",label="",choices=c("Uitleg" = "uit", "Copyright" = "copy")),
                           HTML("<b>Taal</b> <br>"),
-                          HTML('<a href="https://github.com/HHoofs/SensSpec" target="_blank"><img src="http://i.imgur.com/JeuV7EU.png" height= "60px" width="60px"></a>'),
+                          HTML('<a href="https://github.com/HHoofs/SensSpecD" target="_blank"><img src="http://i.imgur.com/2kXCO4c.png" height= "60px" width="60px"></a>'),
                           HTML("     "),
-                          HTML('<a href="https://github.com/HHoofs/SensSpec" target="_blank"><img src="http://i.imgur.com/dZVAGZ6.png" height= "60px" width="60px"></a>'),
+                          HTML('<a href="https://github.com/HHoofs/SensSpecE" target="_blank"><img src="http://i.imgur.com/ZZTSkN9.png" height= "60px" width="60px"></a>'),
                           br(),br(),
                           HTML('<a href="http://www.maastrichtuniversity.nl/" target="_blank"><img src="logo.jpg" alt="Maastricht University"  border="0" style="border: #00A2DB solid 1px; border-radius: 5px;"/></a>')
                           
@@ -43,7 +43,7 @@ shinyUI(
                                      ),
                                      # Conditie
                                      selectInput("selfr", strong("Conditie"), 
-                                                 choices = c("Normaal" = "nor", "Prior Laag" = "priL", "Prior Hoog" = "priH", "Perfect" = "per", "Slecht" = "wor")),
+                                                 choices = c("Normaal" = "nor", "Prior Laag" = "priL", "Prior Hoog" = "priH", "Perfect" = "per", "Slecht" = "wor", "Diffuus" = "diff")),
                                      # Opties voor figuur
                                      wellPanel(strong("Populatie Figuur"),
                                                checkboxInput("PF_cel","Cell",   value = FALSE),
