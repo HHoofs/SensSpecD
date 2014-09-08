@@ -9,9 +9,9 @@ shinyUI(
                         sidebarPanel(
                           radioButtons("info",label="",choices=c("Uitleg" = "uit", "Copyright" = "copy")),
                           HTML("<b>Taal</b> <br>"),
-                          HTML('<a href="https://github.com/HHoofs/SensSpecD" target="_blank"><img src="http://i.imgur.com/2kXCO4c.png" height= "60px" width="60px"></a>'),
+                          HTML('<img src="http://i.imgur.com/2kXCO4c.png" height= "60px" width="60px"></a>'),
                           HTML("     "),
-                          HTML('<a href="https://github.com/HHoofs/SensSpecE" target="_blank"><img src="http://i.imgur.com/ZZTSkN9.png" height= "60px" width="60px"></a>'),
+                          HTML('<a href="https://gettingthingsr.shinyapps.io/SensSpecE/"><img src="http://i.imgur.com/ZZTSkN9.png" height= "60px" width="60px"></a>'),
                           br(),br(),
                           HTML('<a href="http://www.maastrichtuniversity.nl/" target="_blank"><img src="logo.jpg" alt="Maastricht University"  border="0" style="border: #00A2DB solid 1px; border-radius: 5px;"/></a>')
                           

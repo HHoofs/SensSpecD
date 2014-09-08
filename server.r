@@ -155,9 +155,9 @@ shinyServer(function(input, output) {
   # # Information
   output$infoMD <- renderText({
     selout <- ""
-    
-    if(input$info == "uit"){
-      selout <- '
+    if(language == "dutch"){
+      if(input$info == "uit"){
+        selout <- '
       <h3>Introductie</h3>
       Deze website bevat verschillende applicaties die helpen om de statische toepassingen, zoals deze binnen het CAT-onderwijs aan bod komen, te illustreren en uit te voeren.
       <h4>Run 1 </h4>
@@ -165,9 +165,9 @@ shinyServer(function(input, output) {
       Hierbij kan bijvoorbeeld worden gekeken hoe de verandering van verschillende aspecten, zoals het afkappunt en kwaliteit van het instrument, deze waardes beïnvloed.
       Daarnaast is het ook mogelijk deze waardes te berekenen aan de hand van een zelf ingevoerde 2x2 tabel.      
       '
-    }
-    if(input$info == "copy"){
-      selout <- '
+      }
+      if(input$info == "copy"){
+        selout <- '
       <h3>The MIT License (MIT)</h3>
       Copyright (c) 2014 Huub
       <br> <br>
@@ -178,7 +178,34 @@ shinyServer(function(input, output) {
       Source code @:
       <br>
       <a href="https://github.com/HHoofs/SensSpec" target="_blank"><img src="http://www.wakanda.org/sites/default/files/blog/blog-github.png" alt="Github Directory" width="200px"></a>'
-      
+        
+      }
+    }
+    if(language == "eng"){
+      if(input$info == "uit"){
+        selout <- '
+       <h3> Introduction </h3> 
+       This website contains several applications that help to illustrate and perform the statistical methods such as discussed in the CAT education. 
+       <h4> Run 1 </h4> 
+       Run 1 includes applications that illustrate specificity, sensitivity, negative predictive value (NPV) and positive predictive value (ppv). 
+       Here, one could examine how changing various aspects, such as the cut-off value and quality of the instrument, influence these values such as specificity and sensitivity. 
+       In addition, it is also possible to calculate the values on the basis of a user-assigned 2x2 table.
+      '
+      }
+      if(input$info == "copy"){
+        selout <- '
+      <h3>The MIT License (MIT)</h3>
+      Copyright (c) 2014 Huub
+      <br> <br>
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      <br> <br>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.       
+      <br> <br>
+      Source code @:
+      <br>
+      <a href="https://github.com/HHoofs/SensSpec" target="_blank"><img src="http://www.wakanda.org/sites/default/files/blog/blog-github.png" alt="Github Directory" width="200px"></a>'
+        
+      }
     }
     paste(selout)
   })
@@ -399,7 +426,13 @@ shinyServer(function(input, output) {
       if(input$dec >  5 ) stop("Aantal decimalen moet kleiner dan 6 zijn!")
       if(input$cell_A < 0  | input$cell_B < 0  | input$cell_C < 0  | input$cell_D < 0  ) stop("Waarde kan niet negatief zijn")
       if(input$cell_A == 0 & input$cell_B == 0 & input$cell_C == 0 & input$cell_D == 0 ) stop("Lege tabel!")
-      if(input$dec >  5 ) stop("Aantal decimalen moet kleiner dan 6 zijn!")
+    }
+    
+    if(language == "eng"){
+      if(input$dec <= 0 ) stop("Number of decimals must be larger than 0!")
+      if(input$dec >  5 ) stop("Number of decimals must be smaller than 6!")
+      if(input$cell_A < 0  | input$cell_B < 0  | input$cell_C < 0  | input$cell_D < 0  ) stop("Value cannot be negative")
+      if(input$cell_A == 0 & input$cell_B == 0 & input$cell_C == 0 & input$cell_D == 0 ) stop("Empty table!")
     }
     
     # # Grid layout
@@ -468,25 +501,31 @@ shinyServer(function(input, output) {
       popViewport() 
     }
     if(input$calc_uit & input$calc_ci){
-      if(input$calc_cib <= 0) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
-      if(input$calc_cib >= 100) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
-
+      if(language == "dutch"){
+        if(input$calc_cib <= 0) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
+        if(input$calc_cib >= 100) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
+      }
+      
+      if(language == "eng"){
+        if(input$calc_cib <= 0) stop("Confidence Interval must be between 0% en 100%")
+        if(input$calc_cib >= 100) stop("Confidence Interval must be between 0% en 100%")
+      }      
       ci_level <- input$calc_cib
       
       tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev,conf.level = ci_level/100)
       
       zval <- -qnorm((1-ci_level/100)/2)
       
-#       tab_sensL <- tab_sens-(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
-#       tab_specL <- tab_spec-(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
-#       tab_ppvL  <- tab_ppv -(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
-#       tab_npvL  <- tab_npv -(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+      #       tab_sensL <- tab_sens-(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+      #       tab_specL <- tab_spec-(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+      #       tab_ppvL  <- tab_ppv -(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+      #       tab_npvL  <- tab_npv -(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
       tab_prevL <- tab_prev-(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
       
-#       tab_sensU <- tab_sens+(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
-#       tab_specU <- tab_spec+(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
-#       tab_ppvU  <- tab_ppv +(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
-#       tab_npvU  <- tab_npv +(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+      #       tab_sensU <- tab_sens+(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+      #       tab_specU <- tab_spec+(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+      #       tab_ppvU  <- tab_ppv +(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+      #       tab_npvU  <- tab_npv +(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
       tab_prevU <- tab_prev+(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
       # # Add solutions 
       pushViewport(vp.1)
@@ -507,25 +546,4 @@ shinyServer(function(input, output) {
     }
   })
   
-})
-
-# # The MIT License (MIT)
-# # 
-# # Copyright (c) 2014 Huub
-# # 
-# # Permission is hereby granted, free of charge, to any person obtaining a copy of
-# # this software and associated documentation files (the "Software"), to deal in
-# # the Software without restriction, including without limitation the rights to
-# # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# # the Software, and to permit persons to whom the Software is furnished to do so,
-# # subject to the following conditions:
-# # 
-# # The above copyright notice and this permission notice shall be included in all
-# # copies or substantial portions of the Software.
-# # 
-# # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# # FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+}) 
