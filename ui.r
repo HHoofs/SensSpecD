@@ -28,8 +28,8 @@ shinyUI(
                                        HTML('<body style="background-color: white;">'),
                                        tags$style(type="text/css", "select { color: #001C3D }"),
                                        tags$style(type="text/css", "textarea { max-width: 315px; color: #001C3D}"),
-                                       tags$style(type="text/css", ".jslider { max-width: 100%; }"),
-                                       tags$style(type="text/css", ".jslider { min-width: 100%; color: #001C3D}"),
+                                       tags$style(type="text/css", ".jslider { max-width: 99%; }"),
+                                       tags$style(type="text/css", ".jslider { min-width: 99%; color: #001C3D}"),
                                        tags$style(type="text/css", ".jslider .jslider-label{color: #001C3D ; font-size: 12px;}"),
                                        tags$style(type="text/css", ".jslider .jslider-value{color: #001C3D ; font-weight:bold; font-size: 16px;}"),      
                                        tags$style(type='text/css', ".well { max-width: 340px; }"),
@@ -61,7 +61,7 @@ shinyUI(
                                    
                                    mainPanel(
                                      sliderInput("afkap", "",min=0, max=105, value=50, step=5,animate=TRUE),
-                                     plotOutput("basefig",height = "250px"),
+                                     plotOutput("basefig",height = "250px", width="99%"),
                                      fluidRow(
                                        column(4,plotOutput("tabfig",height = "250px")),
                                        column(4,plotOutput("sens_form",height = "250px")),
@@ -73,18 +73,25 @@ shinyUI(
                         tabPanel("Calculator",
                                  sidebarLayout(
                                    sidebarPanel(
+                                     wellPanel(
                                      numericInput("cell_A", HTML("Echt positieven <b>(A)</b>"), 1,min=0),
                                      numericInput("cell_B", HTML("Foutpositief <b>(B)</b>"), 1,min=0),
                                      numericInput("cell_C", HTML("Foutnegatief <b>(C)</b>"), 1,min=0),
-                                     numericInput("cell_D", HTML("Echt negatieven <b>(D)</b>"), 1,min=0),
-                                     checkboxInput("calc_uit","Uitrekenen",value=FALSE),
+                                     numericInput("cell_D", HTML("Echt negatieven <b>(D)</b>"), 1,min=0)
+                                     ),
+                                     wellPanel(
+                                     checkboxInput("calc_uit",strong("Uitrekenen"),value=FALSE),
                                      conditionalPanel(condition = paste("input.calc_uit == true"),
                                                       numericInput("dec","Decimalen",2,min=1,max=5),
-                                                      checkboxInput("calc_ci","Betrouwbaarheids interval",value=FALSE),
+                                                      checkboxInput("calc_ci","Betrouwbaarheids interval (%)",value=FALSE),
                                                       conditionalPanel(condition = paste("input.calc_ci == true"),           
-                                                                       numericInput("calc_cib", "Betrouwbaarheids interval %",value=95,min=0,max=100)
+                                                                       numericInput("calc_cib", "",value=95,min=0,max=100)
                                                       )
-                                     )                                           
+                                     )),
+                                     checkboxInput("expl_calc",strong("Uitleg")),
+                                     conditionalPanel(condition = paste("input.expl_calc == true"),
+                                                      "De cellen van de 2x2 tabel kunnen worden ingevoerd om vervolgens de specificiteit, sensitiviteit, negatief voorspellende waarde (npv), en positief voorspellende waarde (ppv) te berekenen. Daarnaast kan het aantal decimalen van deze waardes worden gekozen en de breedte van het betrouwbaarheidsinterval.")
+                                     
                                    ),
                                    mainPanel(
                                      fluidRow(

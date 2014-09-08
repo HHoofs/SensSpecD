@@ -157,12 +157,18 @@ shinyServer(function(input, output) {
     selout <- ""
     
     if(input$info == "uit"){
-      selout <- "HENK"
+      selout <- '
+      <h3>Introductie</h3>
+      Deze website bevat verschillende applicaties die helpen om de statische toepassingen, zoals deze binnen het CAT-onderwijs aan bod komen, te illustreren en uit te voeren.
+      <h4>Run 1 </h4>
+      Run 1 bevat applicaties die helpen bij het inzichtelijk maken van specificiteit, sensitiviteit, negatief voorspellende waarde (npv), en positief voorspellende waarde (ppv).
+      Hierbij kan bijvoorbeeld worden gekeken hoe de verandering van verschillende aspecten, zoals het afkappunt en kwaliteit van het instrument, deze waardes beïnvloed.
+      Daarnaast is het ook mogelijk deze waardes te berekenen aan de hand van een zelf ingevoerde 2x2 tabel.      
+      '
     }
     if(input$info == "copy"){
       selout <- '
-      The MIT License (MIT)
-      <br> <br>
+      <h3>The MIT License (MIT)</h3>
       Copyright (c) 2014 Huub
       <br> <br>
       Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -388,6 +394,14 @@ shinyServer(function(input, output) {
   
   # # Print formulas with solution if requested
   output$calc_form <- renderPlot({
+    if(language == "dutch"){
+      if(input$dec <= 0 ) stop("Aantal decimalen moet groter dan 0 zijn!")
+      if(input$dec >  5 ) stop("Aantal decimalen moet kleiner dan 6 zijn!")
+      if(input$cell_A < 0  | input$cell_B < 0  | input$cell_C < 0  | input$cell_D < 0  ) stop("Waarde kan niet negatief zijn")
+      if(input$cell_A == 0 & input$cell_B == 0 & input$cell_C == 0 & input$cell_D == 0 ) stop("Lege tabel!")
+      if(input$dec >  5 ) stop("Aantal decimalen moet kleiner dan 6 zijn!")
+    }
+    
     # # Grid layout
     gl <- grid.layout(nrow=5, ncol=1)
     vp.1 <- viewport(layout.pos.col=1, layout.pos.row=1) 
@@ -405,10 +419,7 @@ shinyServer(function(input, output) {
     
     Ntotal <- sum(calcMatr()[1:2,1:2])
     
-
     
-    
-
     
     # # init layout
     pushViewport(viewport(layout=gl))
@@ -457,20 +468,25 @@ shinyServer(function(input, output) {
       popViewport() 
     }
     if(input$calc_uit & input$calc_ci){
-      tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev,conf.level = input$calc_cib/100)
+      if(input$calc_cib <= 0) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
+      if(input$calc_cib >= 100) stop("Betrouwbaarheidsinterval moet tussen de 0% en 100% liggen")
+
+      ci_level <- input$calc_cib
       
-      zval <- -qnorm((1-input$calc_cib/100)/2)
+      tab_sensCI <- BDtest(calcMatr()[1:2,1:2],tab_prev,conf.level = ci_level/100)
       
-      tab_sensL <- tab_sens-(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
-      tab_specL <- tab_spec-(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
-      tab_ppvL  <- tab_ppv -(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
-      tab_npvL  <- tab_npv -(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+      zval <- -qnorm((1-ci_level/100)/2)
+      
+#       tab_sensL <- tab_sens-(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+#       tab_specL <- tab_spec-(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+#       tab_ppvL  <- tab_ppv -(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+#       tab_npvL  <- tab_npv -(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
       tab_prevL <- tab_prev-(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
       
-      tab_sensU <- tab_sens+(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
-      tab_specU <- tab_spec+(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
-      tab_ppvU  <- tab_ppv +(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
-      tab_npvU  <- tab_npv +(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
+#       tab_sensU <- tab_sens+(zval*sqrt(tab_sens*(1-tab_sens)/Ntotal))
+#       tab_specU <- tab_spec+(zval*sqrt(tab_spec*(1-tab_spec)/Ntotal))
+#       tab_ppvU  <- tab_ppv +(zval*sqrt(tab_ppv *(1-tab_ppv )/Ntotal))
+#       tab_npvU  <- tab_npv +(zval*sqrt(tab_npv *(1-tab_npv )/Ntotal))
       tab_prevU <- tab_prev+(zval*sqrt(tab_prev*(1-tab_prev)/Ntotal))
       # # Add solutions 
       pushViewport(vp.1)
